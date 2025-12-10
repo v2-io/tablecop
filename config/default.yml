@@ -1,6 +1,128 @@
-# Default configuration for Tablecop cops
+# Tablecop Default Configuration
+#
+# Table-like, condensed Ruby formatting.
+# These defaults prioritize vertical alignment and single-line expressions
+# where they improve readability.
+#
+# CAUTION: Some alignment cops have known bugs with autocorrect.
+# See docs/known-issues.md for details.
+
+# =============================================================================
+# Tablecop Custom Cops
+# =============================================================================
 
 Tablecop/CondenseWhen:
   Description: "Condense multi-line `when` clauses to single lines when possible."
   Enabled: true
   VersionAdded: "0.1.0"
+
+# =============================================================================
+# Style
+# =============================================================================
+
+# Allow both single and double quotes - use double by convention,
+# single when semantically meaningful (e.g., JSON-style string keys)
+Style/StringLiterals:
+  Enabled: false
+
+# Prefer explicit bracket syntax for symbol arrays
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+# Prefer %w[] for word arrays
+Style/WordArray:
+  EnforcedStyle: percent
+
+# Require class/module documentation
+Style/Documentation:
+  Enabled: true
+
+# Allow multi-line block chains when readable
+Style/MultilineBlockChain:
+  Enabled: false
+
+# DISABLED: Style/EndlessMethod has critical autocorrect bugs:
+# - Destroys heredoc content entirely
+# - Breaks rescue clauses (orphans them outside the class)
+# - Fails in module_eval contexts (Toys, DSLs)
+# - Fails with modifier-if calling dynamic methods
+# See docs/known-issues.md for details.
+Style/EndlessMethod:
+  Enabled: false
+
+# =============================================================================
+# Layout - Alignment
+# =============================================================================
+
+# Require spaces inside hash braces: { foo: 1 }
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: space
+
+# Allow extra spacing for alignment
+# NOTE: ForceEqualSignAlignment has a bug with compound operators (||=, &&=)
+# that can create syntax errors. Use with caution.
+Layout/ExtraSpacing:
+  AllowForAlignment: true
+  AllowBeforeTrailingComments: true
+  ForceEqualSignAlignment: false  # Disabled due to ||= bug
+
+# Allow RBS inline type comments like #: Type
+Layout/LeadingCommentSpace:
+  AllowRBSInlineAnnotation: true
+
+# Table-style hash alignment
+# NOTE: Can cause infinite loops when combined with other alignment cops.
+# If you experience hangs, try switching to 'key' style.
+Layout/HashAlignment:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+  EnforcedLastArgumentHashStyle: always_inspect
+
+# Consistent indentation (not aligned to brackets/parens)
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/FirstArgumentIndentation:
+  EnforcedStyle: consistent
+
+# =============================================================================
+# Naming
+# =============================================================================
+
+# Allow common short parameter names
+Naming/MethodParameterName:
+  AllowedNames:
+    - a
+    - b
+    - c
+    - e   # exception, element, entry
+    - i   # index
+    - j   # secondary index
+    - k   # key
+    - v   # value
+    - n   # number, count
+    - x   # coordinate, generic
+    - y   # coordinate
+    - id  # identifier
+    - io  # IO object
+    - op  # operation
+    - db  # database
+    - fn  # function
+    - _   # explicitly unused
+
+# =============================================================================
+# Lint
+# =============================================================================
+
+# Allow unused assignments with underscore prefix
+Lint/UselessAssignment:
+  Enabled: true
+
+# Allow unused method arguments with underscore prefix
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+  IgnoreEmptyMethods: true
+
+# Don't require super in initialize - disable inline when intentional
+Lint/MissingSuper:
+  Enabled: false

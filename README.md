@@ -68,13 +68,38 @@ when 1
 end
 ```
 
+## Built-in Cop Defaults
+
+Tablecop also sets opinionated defaults for RuboCop's built-in cops to achieve a table-like, condensed style:
+
+- **Layout/HashAlignment** - `table` style for vertical alignment
+- **Layout/FirstArrayElementIndentation** - `consistent` (not aligned to brackets)
+- **Layout/FirstArgumentIndentation** - `consistent`
+- **Layout/ExtraSpacing** - Allow alignment spacing
+- **Style/EndlessMethod** - **Disabled** (has critical autocorrect bugs)
+
+See `config/default.yml` for the full list.
+
+## Known Issues
+
+RuboCop has several autocorrect bugs that can destroy code:
+
+| Bug | Cop | Impact |
+|-----|-----|--------|
+| Heredoc destruction | `Style/EndlessMethod` | Deletes heredoc content |
+| `\|\|=` breaking | `Layout/ExtraSpacing` | Syntax errors |
+| Rescue orphaning | `Style/EndlessMethod` | Code structure destroyed |
+| Infinite loops | `Layout/HashAlignment` | Process hangs |
+
+Tablecop's defaults disable or work around these where possible. See [docs/known-issues.md](docs/known-issues.md) for details.
+
 ## Future Cops
 
 Ideas for additional table-oriented cops:
 
 - **CondenseIf** - Single-line if/unless when body is simple
-- **AlignAssignments** - Vertical alignment of `=` in consecutive assignments
-- **AlignHashValues** - Align hash values in table format
+- **SafeEndlessMethod** - Endless methods that actually check for heredocs/rescue first
+- **AlignAssignments** - Vertical alignment that handles `||=` correctly
 
 ## License
 
