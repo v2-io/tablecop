@@ -291,4 +291,62 @@ class SafeEndlessMethodTest < Minitest::Test
 
     assert_correction(source, expected)
   end
+
+  # ===========================================================================
+  # Skip Setter Methods
+  # ===========================================================================
+
+  def test_skips_setter_methods
+    source = <<~RUBY
+      def []=(key, value)
+        @attributes[key] = value
+      end
+    RUBY
+
+    # Setter methods can't use endless syntax
+    assert_no_offenses(source)
+  end
+
+  def test_skips_named_setter_methods
+    source = <<~RUBY
+      def name=(value)
+        @name = value
+      end
+    RUBY
+
+    assert_no_offenses(source)
+  end
+
+  # ===========================================================================
+  # Skip Complex Control Flow
+  # ===========================================================================
+
+  def test_skips_method_with_if_else
+    source = <<~RUBY
+      def schema_id(id = nil)
+        if id
+          @schema_id = id.to_s
+        else
+          @schema_id ||= default_schema_id
+        end
+      end
+    RUBY
+
+    # if/else can't be condensed without semicolons
+    assert_no_offenses(source)
+  end
+
+  def test_allows_single_line_ternary
+    source = <<~RUBY
+      def status
+        valid? ? :ok : :error
+      end
+    RUBY
+
+    expected = <<~RUBY
+      def status = valid? ? :ok : :error
+    RUBY
+
+    assert_correction(source, expected)
+  end
 end

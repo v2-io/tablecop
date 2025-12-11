@@ -60,6 +60,9 @@ module RuboCop
           # Must have a body
           return false unless node.body
 
+          # Setter methods (ending with =) can't use endless syntax
+          return false if node.method_name.to_s.end_with?("=")
+
           # Body must be single expression (not begin block with multiple children)
           return false if node.body.begin_type?
 
@@ -72,6 +75,9 @@ module RuboCop
           # No multi-statement blocks - condensing them breaks syntax
           # (statements need semicolons or newlines, not just spaces)
           return false if contains_multi_statement_block?(node.body)
+
+          # No complex control flow (if/else, case) - can't condense safely
+          return false if contains_complex_control_flow?(node.body)
 
           # Check line length
           return false unless fits_line_length?(node)
@@ -140,6 +146,23 @@ module RuboCop
           node.each_descendant(:block, :numblock) do |block_node|
             block_body = block_node.body
             return true if block_body&.begin_type?
+          end
+
+          false
+        end
+
+        def contains_complex_control_flow?(node)
+          return false unless node
+
+          # Multi-line if/unless/case can't be condensed safely
+          # (modifier-if is handled separately in should_use_traditional?)
+          if node.if_type? || node.case_type?
+            return true unless node.single_line?
+          end
+
+          # Check descendants for complex control flow
+          node.each_descendant(:if, :case) do |control_node|
+            return true unless control_node.single_line?
           end
 
           false
