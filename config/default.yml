@@ -62,7 +62,12 @@ Style/MultilineBlockChain:
 # - Fails in module_eval contexts (Toys, DSLs)
 # - Fails with modifier-if calling dynamic methods
 # See docs/known-issues.md for details.
+# Use Tablecop/SafeEndlessMethod instead.
 Style/EndlessMethod:
+  Enabled: false
+
+# Related to EndlessMethod - can cause issues in the same contexts
+Style/AmbiguousEndlessMethodDefinition:
   Enabled: false
 
 # DISABLED: Style/DoubleNegation autocorrect is semantically wrong.
@@ -113,45 +118,3 @@ Layout/FirstArrayElementIndentation:
 
 Layout/FirstArgumentIndentation:
   EnforcedStyle: consistent
-
-# =============================================================================
-# Naming
-# =============================================================================
-
-# Allow common short parameter names
-Naming/MethodParameterName:
-  AllowedNames:
-    - a
-    - b
-    - c
-    - e   # exception, element, entry
-    - i   # index
-    - j   # secondary index
-    - k   # key
-    - v   # value
-    - n   # number, count
-    - x   # coordinate, generic
-    - y   # coordinate
-    - id  # identifier
-    - io  # IO object
-    - op  # operation
-    - db  # database
-    - fn  # function
-    - _   # explicitly unused
-
-# =============================================================================
-# Lint
-# =============================================================================
-
-# Allow unused assignments with underscore prefix
-Lint/UselessAssignment:
-  Enabled: true
-
-# Allow unused method arguments with underscore prefix
-Lint/UnusedMethodArgument:
-  AllowUnusedKeywordArguments: true
-  IgnoreEmptyMethods: true
-
-# Don't require super in initialize - disable inline when intentional
-Lint/MissingSuper:
-  Enabled: false
