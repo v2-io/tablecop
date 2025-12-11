@@ -32,29 +32,8 @@ Tablecop/SafeEndlessMethod:
   VersionAdded: "0.1.0"
 
 # =============================================================================
-# Style
+# Disabled Cops (replaced by Tablecop equivalents)
 # =============================================================================
-
-# Allow both single and double quotes - use double by convention,
-# single when semantically meaningful (e.g., JSON-style string keys)
-Style/StringLiterals:
-  Enabled: false
-
-# Prefer explicit bracket syntax for symbol arrays
-Style/SymbolArray:
-  EnforcedStyle: brackets
-
-# Prefer %w[] for word arrays
-Style/WordArray:
-  EnforcedStyle: percent
-
-# Require class/module documentation
-Style/Documentation:
-  Enabled: true
-
-# Allow multi-line block chains when readable
-Style/MultilineBlockChain:
-  Enabled: false
 
 # DISABLED: Style/EndlessMethod has critical autocorrect bugs:
 # - Destroys heredoc content entirely
@@ -68,20 +47,6 @@ Style/EndlessMethod:
 
 # Related to EndlessMethod - can cause issues in the same contexts
 Style/AmbiguousEndlessMethodDefinition:
-  Enabled: false
-
-# DISABLED: Style/DoubleNegation autocorrect is semantically wrong.
-# It converts !!value to !value.nil? but these are NOT equivalent:
-#   !!false     → false
-#   !false.nil? → true
-# This silently changes program behavior.
-Style/DoubleNegation:
-  Enabled: false
-
-# DISABLED: Style/HashExcept changes semantics with mixed key types.
-# reject { |k, _| keys.include?(k) } handles symbol/string keys correctly,
-# but hash.except(*keys) treats :key and "key" as different.
-Style/HashExcept:
   Enabled: false
 
 # =============================================================================
@@ -99,10 +64,6 @@ Layout/ExtraSpacing:
   AllowForAlignment: true
   AllowBeforeTrailingComments: true
   ForceEqualSignAlignment: false  # Disabled due to ||= bug
-
-# Allow RBS inline type comments like #: Type
-Layout/LeadingCommentSpace:
-  AllowRBSInlineAnnotation: true
 
 # Table-style hash alignment
 # NOTE: Can cause infinite loops when combined with other alignment cops.
