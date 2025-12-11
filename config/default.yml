@@ -58,6 +58,12 @@ Style/EndlessMethod:
 Style/DoubleNegation:
   Enabled: false
 
+# DISABLED: Style/HashExcept changes semantics with mixed key types.
+# reject { |k, _| keys.include?(k) } handles symbol/string keys correctly,
+# but hash.except(*keys) treats :key and "key" as different.
+Style/HashExcept:
+  Enabled: false
+
 # =============================================================================
 # Layout - Alignment
 # =============================================================================

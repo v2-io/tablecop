@@ -183,7 +183,28 @@ Layout/HashAlignment:
 
 ---
 
-## 7. DoubleNegation Autocorrect Changes Semantics
+## 7. HashExcept with Mixed Key Types
+
+**Cop:** `Style/HashExcept`
+
+**Bug:** Converts `hash.reject { |k, _| keys.include?(k) }` to `hash.except(*keys)`, but `except` uses strict key equality while `reject` + `include?` handles mixed symbol/string keys.
+
+```ruby
+# Before (handles mixed keys correctly):
+excluded_keys = [:hash, "hash"]
+content = attributes.reject { |k, _| excluded_keys.include?(k) }
+
+# After (BROKEN - :hash and "hash" are different keys to except):
+content = attributes.except(*excluded_keys)
+```
+
+**Impact:** Subtle data corruption - keys that should be excluded remain when symbol/string mismatch occurs.
+
+**Tablecop mitigation:** `Style/HashExcept` is disabled by default.
+
+---
+
+## 8. DoubleNegation Autocorrect Changes Semantics
 
 **Cop:** `Style/DoubleNegation`
 
@@ -212,6 +233,7 @@ Layout/HashAlignment:
 | Modifier-if dynamic methods | `Style/EndlessMethod` | High | Parse-time NameError | Disabled |
 | Rescue clause destruction | `Style/EndlessMethod` | Critical | Syntax/scope errors | Disabled |
 | `!!` → `!.nil?` wrong | `Style/DoubleNegation` | Critical (silent bug) | None (logic error) | Disabled |
+| Mixed key type handling | `Style/HashExcept` | Medium (data bug) | None (subtle) | Disabled |
 
 ---
 
