@@ -246,4 +246,49 @@ class SafeEndlessMethodTest < Minitest::Test
 
     assert_correction(source, expected)
   end
+
+  # ===========================================================================
+  # Skip Methods with Multi-statement Blocks
+  # ===========================================================================
+
+  def test_skips_method_with_multi_statement_do_block
+    source = <<~RUBY
+      def read(query)
+        Result.try do
+          ds = apply_query(dataset, query)
+          ds.map { |row| build_record(row) }
+        end
+      end
+    RUBY
+
+    # Multi-statement blocks can't be condensed to single line without semicolons
+    assert_no_offenses(source)
+  end
+
+  def test_skips_method_with_multi_statement_brace_block
+    source = <<~RUBY
+      def process
+        items.each { |i|
+          validate(i)
+          transform(i)
+        }
+      end
+    RUBY
+
+    assert_no_offenses(source)
+  end
+
+  def test_allows_single_statement_block
+    source = <<~RUBY
+      def items
+        @items.map { |x| x * 2 }
+      end
+    RUBY
+
+    expected = <<~RUBY
+      def items = @items.map { |x| x * 2 }
+    RUBY
+
+    assert_correction(source, expected)
+  end
 end

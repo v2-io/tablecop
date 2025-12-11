@@ -32,6 +32,24 @@ Tablecop/SafeEndlessMethod:
   VersionAdded: "0.1.0"
 
 # =============================================================================
+# Disabled Cops (conflict with Tablecop alignment)
+# =============================================================================
+
+# DISABLED: Conflicts with Tablecop/AlignAssignments.
+# SpaceAroundOperators enforces exactly one space, which undoes alignment padding.
+Layout/SpaceAroundOperators:
+  Enabled: false
+
+# DISABLED: Conflicts with Tablecop/SafeEndlessMethod.
+# These cops try to reformat blocks/methods that SafeEndlessMethod creates,
+# causing infinite autocorrect loops.
+Style/SingleLineDoEndBlock:
+  Enabled: false
+
+Style/SingleLineMethods:
+  Enabled: false
+
+# =============================================================================
 # Disabled Cops (replaced by Tablecop equivalents)
 # =============================================================================
 

@@ -69,6 +69,10 @@ module RuboCop
           # No rescue/ensure (these are resbody/ensure node types in the method)
           return false if has_rescue_or_ensure?(node)
 
+          # No multi-statement blocks - condensing them breaks syntax
+          # (statements need semicolons or newlines, not just spaces)
+          return false if contains_multi_statement_block?(node.body)
+
           # Check line length
           return false unless fits_line_length?(node)
 
@@ -120,6 +124,25 @@ module RuboCop
 
           # Also check for rescue as part of method definition (def foo; rescue; end)
           node.each_descendant(:rescue, :ensure, :resbody).any?
+        end
+
+        def contains_multi_statement_block?(node)
+          return false unless node
+
+          # Check if node itself is a block with multiple statements
+          if node.block_type? || node.numblock_type?
+            block_body = node.body
+            # Multiple statements show up as a :begin node
+            return true if block_body&.begin_type?
+          end
+
+          # Check descendants for blocks with multiple statements
+          node.each_descendant(:block, :numblock) do |block_node|
+            block_body = block_node.body
+            return true if block_body&.begin_type?
+          end
+
+          false
         end
 
         def fits_line_length?(node)
