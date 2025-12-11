@@ -91,6 +91,10 @@ module RuboCop
             # Only include if it's on a single line
             next unless node.single_line?
 
+            # Skip assignments inside blocks - they shouldn't align with
+            # assignments outside the block
+            next if inside_block?(node)
+
             assignments << node
           end
 
@@ -212,6 +216,10 @@ module RuboCop
           node.each_descendant(:str, :dstr, :xstr).any? do |str_node|
             str_node.heredoc?
           end
+        end
+
+        def inside_block?(node)
+          node.each_ancestor(:block, :numblock).any?
         end
 
         def register_offense(node, padding_needed)

@@ -303,4 +303,54 @@ class AlignAssignmentsTest < Minitest::Test
 
     assert_correction(source, expected)
   end
+
+  # ===========================================================================
+  # Assignments Inside Blocks - Skipped
+  # ===========================================================================
+
+  def test_skips_assignments_inside_blocks
+    source = <<~RUBY
+      items.each { |item| count += 1 }
+      total = 100
+    RUBY
+
+    # Block assignment shouldn't align with outside assignment
+    assert_no_offenses(source)
+  end
+
+  def test_skips_assignments_inside_multiline_blocks
+    source = <<~RUBY
+      items.map do |item|
+        x = item.value
+        foo = item.name
+      end
+    RUBY
+
+    # Assignments inside block - not aligned with anything outside
+    # But they could align with each other IF we wanted to support that
+    # For now, we skip all block assignments entirely
+    assert_no_offenses(source)
+  end
+
+  def test_assignments_outside_block_still_align
+    source = <<~RUBY
+      x = 1
+      foo = 2
+      items.each { |i| count += 1 }
+      a = 3
+      barbaz = 4
+    RUBY
+
+    # x and foo should align; a and barbaz should align
+    # Block in middle breaks the groups
+    expected = <<~RUBY
+      x   = 1
+      foo = 2
+      items.each { |i| count += 1 }
+      a      = 3
+      barbaz = 4
+    RUBY
+
+    assert_correction(source, expected)
+  end
 end
