@@ -1,22 +1,25 @@
 # frozen_string_literal: true
 
+require_relative "lib/tablecop/version"
+
 Gem::Specification.new do |spec|
   spec.name = "tablecop"
-  spec.version = "0.1.0"
+  spec.version = Tablecop::VERSION
   spec.authors = ["Joseph Wecker"]
-  spec.email = ["joseph@wecker.io"]
+  spec.email = ["joseph@v2.io"]
 
   spec.summary = "RuboCop extension for table-like, condensed Ruby formatting"
   spec.description = "Custom RuboCop cops that enforce vertical alignment and condensed single-line expressions where appropriate."
-  spec.homepage = "https://github.com/josephwecker/tablecop"
+  spec.homepage = "https://github.com/v2-io/tablecop"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
+  spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
   spec.metadata["rubygems_mfa_required"] = "true"
 
-  spec.files = Dir["lib/**/*", "config/**/*", "LICENSE", "README.md"]
+  spec.files = Dir["lib/**/*", "config/**/*", "LICENSE", "README.md", "CHANGELOG.md"]
   spec.require_paths = ["lib"]
 
   spec.add_dependency "rubocop", ">= 1.50"
