@@ -183,6 +183,25 @@ Layout/HashAlignment:
 
 ---
 
+## 7. DoubleNegation Autocorrect Changes Semantics
+
+**Cop:** `Style/DoubleNegation`
+
+**Bug:** Autocorrects `!!value` to `!value.nil?`, but these have different semantics for `false`:
+
+```ruby
+!!false      # => false (correct boolean coercion)
+!false.nil?  # => true  (WRONG - false is not nil)
+```
+
+**Impact:** Silent logic bugs - program behavior changes without syntax errors.
+
+**Tablecop mitigation:** `Style/DoubleNegation` is disabled by default.
+
+**Note:** RuboCop documentation admits this is "unsafe" but does it anyway.
+
+---
+
 ## Summary Table
 
 | Bug | Cop | Severity | Detection | Tablecop Default |
@@ -192,6 +211,7 @@ Layout/HashAlignment:
 | `module_eval` context | `Style/EndlessMethod` | High | Runtime NameError | Disabled |
 | Modifier-if dynamic methods | `Style/EndlessMethod` | High | Parse-time NameError | Disabled |
 | Rescue clause destruction | `Style/EndlessMethod` | Critical | Syntax/scope errors | Disabled |
+| `!!` → `!.nil?` wrong | `Style/DoubleNegation` | Critical (silent bug) | None (logic error) | Disabled |
 
 ---
 

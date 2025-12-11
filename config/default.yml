@@ -50,6 +50,14 @@ Style/MultilineBlockChain:
 Style/EndlessMethod:
   Enabled: false
 
+# DISABLED: Style/DoubleNegation autocorrect is semantically wrong.
+# It converts !!value to !value.nil? but these are NOT equivalent:
+#   !!false     → false
+#   !false.nil? → true
+# This silently changes program behavior.
+Style/DoubleNegation:
+  Enabled: false
+
 # =============================================================================
 # Layout - Alignment
 # =============================================================================
