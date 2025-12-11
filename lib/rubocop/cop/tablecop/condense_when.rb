@@ -4,7 +4,7 @@ module RuboCop
   module Cop
     module Tablecop
       # Checks for multi-line `when` clauses that could be condensed to a single
-      # line using the `then` keyword.
+      # line using the `then` keyword, and aligns `then` keywords across siblings.
       #
       # This cop encourages a table-like, vertically-aligned style for case
       # statements where each when clause fits on one line.
@@ -14,14 +14,14 @@ module RuboCop
       #   case foo
       #   when 1
       #     "one"
-      #   when 2
-      #     "two"
+      #   when 200
+      #     "two hundred"
       #   end
       #
-      #   # good
+      #   # good (aligned)
       #   case foo
-      #   when 1 then "one"
-      #   when 2 then "two"
+      #   when 1   then "one"
+      #   when 200 then "two hundred"
       #   end
       #
       #   # also good (body too complex for single line)
@@ -31,38 +31,39 @@ module RuboCop
       #     do_something_else
       #   end
       #
-      # @example MaxLineLength: 80 (default from Layout/LineLength)
-      #   # If the condensed line would exceed MaxLineLength, no offense is registered.
-      #
       class CondenseWhen < Base
         extend AutoCorrector
 
-        MSG = "Condense `when` to single line: `when %<conditions>s then %<body>s`"
+        MSG = "Condense `when` to single line with aligned `then`"
 
-        def on_when(node)
-          return unless condensable?(node)
+        def on_case(node)
+          when_nodes = node.when_branches
+          return if when_nodes.empty?
 
-          conditions_source = node.conditions.map(&:source).join(", ")
-          body_source = node.body.source.gsub(/\s*\n\s*/, " ").strip
-          single_line = "when #{conditions_source} then #{body_source}"
+          # Analyze which whens can be condensed
+          condensable = when_nodes.map { |w| [w, condensable?(w)] }
 
-          # Check line length
-          base_indent = node.loc.keyword.column
-          return if (base_indent + single_line.length) > max_line_length
+          # If none can be condensed, nothing to do
+          return unless condensable.any? { |_, can| can }
 
-          message = format(MSG, conditions: conditions_source, body: body_source)
+          # Calculate alignment width from all condensable whens
+          max_condition_width = calculate_max_condition_width(condensable)
 
-          add_offense(node, message: message) do |corrector|
-            corrector.replace(node, single_line)
+          # Check if alignment would exceed line length for any condensable when
+          use_alignment = can_align_all?(condensable, max_condition_width, node)
+
+          # Register offenses and corrections for each condensable when
+          condensable.each do |when_node, can_condense|
+            next unless can_condense
+            next if when_node.single_line?  # Already condensed
+
+            register_offense(when_node, max_condition_width, use_alignment, node)
           end
         end
 
         private
 
         def condensable?(node)
-          # Skip if already single-line
-          return false if node.single_line?
-
           # Must have a body
           return false unless node.body
 
@@ -81,7 +82,56 @@ module RuboCop
           # Conditions must be on one line
           return false unless conditions_single_line?(node)
 
+          # Check if condensed form would exceed line length (without alignment)
+          single_line = build_single_line(node, 0)
+          base_indent = node.loc.keyword.column
+          return false if (base_indent + single_line.length) > max_line_length
+
           true
+        end
+
+        def calculate_max_condition_width(condensable)
+          condensable
+            .select { |_, can| can }
+            .map { |w, _| condition_width(w) }
+            .max || 0
+        end
+
+        def condition_width(when_node)
+          when_node.conditions.map(&:source).join(", ").length
+        end
+
+        def can_align_all?(condensable, max_width, case_node)
+          base_indent = case_node.loc.keyword.column
+
+          condensable.all? do |when_node, can_condense|
+            next true unless can_condense
+            next true if when_node.single_line?
+
+            # Check if aligned version fits
+            single_line = build_single_line(when_node, max_width)
+            (base_indent + single_line.length) <= max_line_length
+          end
+        end
+
+        def build_single_line(when_node, pad_to_width)
+          conditions_source = when_node.conditions.map(&:source).join(", ")
+          body_source = when_node.body.source.gsub(/\s*\n\s*/, " ").strip
+
+          if pad_to_width > 0
+            padding = " " * (pad_to_width - conditions_source.length)
+            "when #{conditions_source}#{padding} then #{body_source}"
+          else
+            "when #{conditions_source} then #{body_source}"
+          end
+        end
+
+        def register_offense(when_node, max_width, use_alignment, _case_node)
+          add_offense(when_node) do |corrector|
+            width = use_alignment ? max_width : 0
+            single_line = build_single_line(when_node, width)
+            corrector.replace(when_node, single_line)
+          end
         end
 
         def conditions_single_line?(node)
