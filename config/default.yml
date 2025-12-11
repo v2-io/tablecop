@@ -26,6 +26,11 @@ Tablecop/CondenseWhen:
   Enabled: true
   VersionAdded: "0.1.0"
 
+Tablecop/SafeEndlessMethod:
+  Description: "Convert multi-line methods to single-line, avoiding RuboCop bugs."
+  Enabled: true
+  VersionAdded: "0.1.0"
+
 # =============================================================================
 # Style
 # =============================================================================
