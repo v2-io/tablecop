@@ -38,27 +38,31 @@ def generate_migration(name) = <<~RUBY
 
 ---
 
-## 2. Alignment Breaking Compound Assignment Operators
+## 2. Heredoc Assignment Alignment Infinite Loop
 
-**Cop:** `Layout/ExtraSpacing` with `ForceEqualSignAlignment: true`
+**Cops:** `Layout/ExtraSpacing` with `ForceEqualSignAlignment: true` + `Layout/SpaceAroundOperators`
 
-**Bug:** When aligning consecutive assignments, it breaks compound operators like `||=` by inserting spaces between `||` and `=`.
+**Bug:** When a block of consecutive assignments includes a heredoc, the alignment cops fight each other in an infinite loop.
 
-**Before (valid):**
+**Trigger:**
 ```ruby
-data    ||= attrs
-options   = { actor: actor }
+spec.summary     = "Short"
+spec.description = <<~DESC
+  Long description here
+DESC
+spec.homepage    = "https://example.com"
 ```
 
-**After (broken):**
-```ruby
-data    ||          = attrs
-options             = { actor: actor }
-```
+**What happens:**
+1. `Layout/ExtraSpacing` tries to align `spec.homepage =` with `spec.description =`
+2. `Layout/SpaceAroundOperators` removes extra spaces (only one space around `=`)
+3. Repeat forever
 
-**Impact:** Syntax error - `||=` is a single operator that cannot have whitespace.
+**Impact:** `rubocop -a` hangs indefinitely, must kill process.
 
 **Tablecop mitigation:** `ForceEqualSignAlignment` is disabled by default.
+
+**Note:** The `||=` alignment bug previously documented here appears to be fixed in RuboCop 1.81.7.
 
 ---
 
@@ -166,18 +170,11 @@ rescue StandardError => e
 
 ---
 
-## 6. Hash Alignment Infinite Loops
+## 6. Hash Alignment Potential Conflicts
 
-**Cops:** `Layout/HashAlignment` with `table` style + other alignment cops
+**Cops:** `Layout/HashAlignment` with `table` style
 
-**Bug:** When `EnforcedHashRocketStyle: table` or `EnforcedColonStyle: table` is combined with other alignment-related cops, autocorrect can enter an infinite loop where cops fight each other.
-
-**Symptoms:**
-- `rubocop -a` hangs indefinitely
-- CPU spikes to 100%
-- Must kill the process
-
-**Tablecop mitigation:** Users should be aware this can happen. If you experience hangs, try:
+**Note:** `Layout/HashAlignment` with `table` style generally works well, but can potentially conflict with other alignment cops in complex scenarios. If you experience hangs with hash-heavy files, try:
 ```yaml
 Layout/HashAlignment:
   EnforcedHashRocketStyle: key
@@ -191,11 +188,10 @@ Layout/HashAlignment:
 | Bug | Cop | Severity | Detection | Tablecop Default |
 |-----|-----|----------|-----------|------------------|
 | Heredoc destruction | `Style/EndlessMethod` | Critical (data loss) | Syntax error | Disabled |
-| `\|\|=` breaking | `Layout/ExtraSpacing` | Critical | Syntax error | `ForceEqualSignAlignment: false` |
+| Heredoc alignment loop | `ExtraSpacing` + `SpaceAroundOperators` | High | Process hangs | `ForceEqualSignAlignment: false` |
 | `module_eval` context | `Style/EndlessMethod` | High | Runtime NameError | Disabled |
 | Modifier-if dynamic methods | `Style/EndlessMethod` | High | Parse-time NameError | Disabled |
 | Rescue clause destruction | `Style/EndlessMethod` | Critical | Syntax/scope errors | Disabled |
-| Alignment infinite loops | `Layout/HashAlignment` | High | Process hangs | Enabled with warning |
 
 ---
 
