@@ -11,6 +11,11 @@
 # Tablecop Custom Cops
 # =============================================================================
 
+Tablecop/AlignAssignments:
+  Description: "Align consecutive assignments on the = operator."
+  Enabled: true
+  VersionAdded: "0.1.0"
+
 Tablecop/AlignMethods:
   Description: "Align contiguous single-line method definitions."
   Enabled: true
