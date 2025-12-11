@@ -286,6 +286,58 @@ class CondenseWhenTest < Minitest::Test
     assert_correction(source, expected)
   end
 
+  def test_skips_when_with_if_else_body
+    # if/else in body can't be safely condensed without adding semicolons
+    source = <<~RUBY
+      case op
+      when :is_nil
+        if filter[:value]
+          ds.where(attr => nil)
+        else
+          ds.exclude(attr => nil)
+        end
+      when :eq
+        ds.where(attr => value)
+      end
+    RUBY
+
+    # when :is_nil stays multi-line (complex if/else),
+    # when :eq can be condensed
+    expected = <<~RUBY
+      case op
+      when :is_nil
+        if filter[:value]
+          ds.where(attr => nil)
+        else
+          ds.exclude(attr => nil)
+        end
+      when :eq then ds.where(attr => value)
+      end
+    RUBY
+
+    assert_correction(source, expected)
+  end
+
+  def test_allows_single_line_ternary_in_body
+    source = <<~RUBY
+      case foo
+      when 1
+        x ? "yes" : "no"
+      when 2
+        "two"
+      end
+    RUBY
+
+    expected = <<~RUBY
+      case foo
+      when 1 then x ? "yes" : "no"
+      when 2 then "two"
+      end
+    RUBY
+
+    assert_correction(source, expected)
+  end
+
   # TODO: Nested cases cause clobbering errors - needs special handling
   # def test_nested_case_statements
   #   source = <<~RUBY

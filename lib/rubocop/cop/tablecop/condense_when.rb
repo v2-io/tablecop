@@ -76,6 +76,10 @@ module RuboCop
           # No multi-line strings
           return false if contains_multiline_string?(node.body)
 
+          # No control flow that can't be safely condensed
+          # (if/unless/case with else, multi-statement blocks, etc.)
+          return false if contains_complex_control_flow?(node.body)
+
           # No comments between when and body
           return false if comment_between?(node)
 
@@ -159,6 +163,27 @@ module RuboCop
 
             str_node.source.include?("\n")
           end
+        end
+
+        def contains_complex_control_flow?(node)
+          return false unless node
+
+          # Multi-line if/unless/case can't be condensed safely
+          if node.if_type? || node.case_type?
+            return true unless node.single_line?
+          end
+
+          # Check for multi-statement blocks
+          node.each_descendant(:block, :numblock) do |block_node|
+            return true if block_node.body&.begin_type?
+          end
+
+          # Check descendants for complex control flow
+          node.each_descendant(:if, :case) do |control_node|
+            return true unless control_node.single_line?
+          end
+
+          false
         end
 
         def comment_between?(when_node)
