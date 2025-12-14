@@ -3,7 +3,7 @@
 require "minitest/autorun"
 require "rubocop"
 
-require_relative "../lib/tablecop"
+require_relative "../lib/rubocop-tablecop"
 
 module CopHelper
   def cop_class

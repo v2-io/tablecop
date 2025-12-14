@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/tablecop/version"
+require_relative "lib/rubocop/tablecop/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "tablecop"
-  spec.version = Tablecop::VERSION
+  spec.name = "rubocop-tablecop"
+  spec.version = RuboCop::Tablecop::VERSION
   spec.authors = ["Joseph Wecker"]
   spec.email = ["joseph@v2.io"]
 

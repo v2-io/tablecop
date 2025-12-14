@@ -147,7 +147,6 @@ module RuboCop
         def find_operator_column(node)
           # For simple assignments, find the = in the source
           line = processed_source.lines[node.first_line - 1]
-          line_start = processed_source.buffer.line_range(node.first_line).begin_pos
 
           # Find the first = that's part of an assignment (not ==, !=, etc.)
           # Start after the LHS
