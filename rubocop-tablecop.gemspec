@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "RuboCop extension for table-like, condensed Ruby formatting"
   spec.description = "Custom RuboCop cops that enforce vertical alignment and condensed single-line expressions where appropriate."
-  spec.homepage = "https://github.com/v2-io/tablecop"
+  spec.homepage = "https://github.com/v2-io/rubocop-tablecop"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1"
 
@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
   spec.files = Dir["lib/**/*", "config/**/*", "LICENSE", "README.md", "CHANGELOG.md"]
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rubocop", ">= 1.72"
+  spec.add_dependency "rubocop", "~> 1.72"
   spec.add_dependency "lint_roller", "~> 1.1"
 end
