@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-12-13
+
+### Changed
+
+- **BREAKING**: Renamed gem from `tablecop` to `rubocop-tablecop` for RuboCop plugin auto-discovery
+- **BREAKING**: Minimum RuboCop version increased from 1.50 to 1.72 (required for plugin system)
+- Migrated to RuboCop's plugin system using `lint_roller`
+- Version module relocated to `RuboCop::Tablecop::Version::STRING` (backwards-compatible `VERSION` constant retained)
+
+### Added
+
+- `RuboCop::Tablecop::Plugin` class for native plugin integration
+- Can now use `plugins: [rubocop-tablecop]` in `.rubocop.yml` instead of `require:`
+
+### Fixed
+
+- Removed unused variable warning in `AlignAssignments` cop
+
+### Migration
+
+Update your configuration:
+
+```yaml
+# Before (.rubocop.yml)
+require:
+  - tablecop
+
+# After (.rubocop.yml)
+plugins:
+  - rubocop-tablecop
+```
+
+Update your Gemfile:
+
+```ruby
+# Before
+gem "tablecop"
+
+# After
+gem "rubocop-tablecop", "~> 0.2"
+```
+
 ## [0.1.0] - 2025-12-10
 
 ### Added
