@@ -18,10 +18,11 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
   spec.metadata["rubygems_mfa_required"] = "true"
+  spec.metadata["default_lint_roller_plugin"] = "RuboCop::Tablecop::Plugin"
 
   spec.files = Dir["lib/**/*", "config/**/*", "LICENSE", "README.md", "CHANGELOG.md"]
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rubocop", ">= 1.50"
+  spec.add_dependency "rubocop", ">= 1.72"
   spec.add_dependency "lint_roller", "~> 1.1"
 end
